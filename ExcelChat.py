@@ -15,7 +15,7 @@ except ImportError:
     subprocess.check_call([sys.executable, "-m", "pip", "install", "xlsxwriter"])
     import xlsxwriter
 
-genai.configure(api_key="AIzaSyDBdBlw2WkCrINQJV5oZ-Vkq8dLOLd5Nls")
+genai.configure(api_key="YOUR API KEY")
 
 def load_excel(file):
     df = pd.read_excel(file) 
