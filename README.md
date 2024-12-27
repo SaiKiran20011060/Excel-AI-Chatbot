@@ -1,7 +1,7 @@
-Excel Query Chatbot with AI
+**Excel Query Chatbot with AI**
 This project is a Streamlit-based application that enables users to upload Excel files, ask natural language queries about the data, and receive actionable insights or visualizations. The chatbot uses Google’s Generative AI API (Gemini) to interpret queries and generate Python code for data analysis and visualization.
 
-Features
+**Features**
 For "ExcelChat1.py" excel File Upload: the file and the path has to set in code.
 For "ExcelChat1.py" excel File Upload: Users can upload their Excel files directly via the Streamlit dashboard.
 AI-Powered Query Handling: The chatbot interprets natural language queries to process and analyze data.
@@ -9,7 +9,8 @@ Data Visualizations: Automatically generates Matplotlib-based visualizations bas
 Dynamic Data Processing: Filters, sorts, or summarizes data as requested.
 Downloadable Outputs: Provides options to download processed data or visualizations.
 Streamlit Interface: Simple and interactive web interface for seamless user experience.
-How It Works
+
+**How It Works**
 Upload Your Excel File: Upload an Excel file in .xlsx format.
 Ask Questions: Enter your queries, such as:
 "Filter rows where progress is less than 50%."
@@ -28,7 +29,7 @@ OpenPyXL
 XlsxWriter
 Google Generative AI Python SDK
 
-Contact
+**Contact**
 For questions or suggestions, feel free to reach out via:
 LinkedIn: "Sai Kiran Ravipati"
 Link: https://www.linkedin.com/in/sai-kiran-ravipati-019239193/
