@@ -2,7 +2,7 @@
 This project is a Streamlit-based application that enables users to upload Excel files, ask natural language queries about the data, and receive actionable insights or visualizations. The chatbot uses Google’s Generative AI API (Gemini) to interpret queries and generate Python code for data analysis and visualization.
 
 **Features**
-For "ExcelChat1.py" excel File Upload: the file and the path has to set in code.
+For "ExcelChat1.py" excel File Upload: the file and the path have to be set in code.
 For "ExcelChat1.py" excel File Upload: Users can upload their Excel files directly via the Streamlit dashboard.
 AI-Powered Query Handling: The chatbot interprets natural language queries to process and analyze data.
 Data Visualizations: Automatically generates Matplotlib-based visualizations based on user queries.
