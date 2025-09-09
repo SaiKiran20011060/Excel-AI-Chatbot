@@ -15,7 +15,13 @@ except ImportError:
     subprocess.check_call([sys.executable, "-m", "pip", "install", "xlsxwriter"])
     import xlsxwriter
 
-genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+# Configure API key from environment variable
+api_key = os.getenv("GOOGLE_API_KEY")
+if not api_key:
+    st.error("Please set the GOOGLE_API_KEY environment variable")
+    st.stop()
+
+genai.configure(api_key=api_key)
 
 def load_excel(file):
     df = pd.read_excel(file)
