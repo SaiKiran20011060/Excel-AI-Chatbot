@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: excel-ai-chatbot
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: streamlit run ExcelChat.py --server.port=$PORT --server.address=0.0.0.0
+    envVars:
+      - key: GOOGLE_API_KEY
+        sync: false
