@@ -1,4 +1,5 @@
 **Excel Query Chatbot with AI** 
+
 Project Live -- https://saikirn-excel-ai-chatbot.streamlit.app/
 
 This project is a Streamlit-based application that enables users to upload Excel files, ask natural language queries about the data, and receive actionable insights or visualizations. The chatbot uses Google’s Generative AI API (Gemini) to interpret queries and generate Python code for data analysis and visualization.
