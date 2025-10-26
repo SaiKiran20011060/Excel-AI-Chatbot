@@ -8,6 +8,7 @@ import importlib
 import subprocess
 import sys
 import matplotlib.pyplot as plt
+from dotenv import load_dotenv
 
 try:
     import xlsxwriter
@@ -15,26 +16,16 @@ except ImportError:
     subprocess.check_call([sys.executable, "-m", "pip", "install", "xlsxwriter"])
     import xlsxwriter
 
-
-# ✅ Configure API key (set in Streamlit Cloud secrets or environment)
-api_key = "AIzaSyDZvEkdLN9XaEuO5KM-50gj_FJ6vjKPabQ"
-if not api_key:
-    st.error("Please set the GOOGLE_API_KEY environment variable in Streamlit secrets or your system.")
-    st.stop()
-
-genai.configure(api_key=api_key)
-
+load_dotenv()
 
 def load_excel(file):
     df = pd.read_excel(file)
     return df
 
-
 def normalize_percentages(df, column_name):
     if column_name in df.columns:
         df[column_name] = df[column_name] * 100
     return df
-
 
 def delete_first_last_lines(filepath):
     """Deletes the first and last lines of a file."""
@@ -55,21 +46,21 @@ def delete_first_last_lines(filepath):
     except Exception as e:
         print(f"An error occurred: {e}")
 
-
-def clean_code(code: str) -> str:
-    """Remove markdown formatting like ```python ... ``` from AI output."""
-    code = code.strip()
-    if code.startswith("```"):
-        parts = code.split("```")
-        if len(parts) >= 2:
-            code = parts[1]  # take content between first and second ```
-        code = code.replace("python", "", 1)  # remove optional "python" label
-    return code.strip()
-
+def get_available_gemini_models():
+    """Get list of available Gemini models that support generateContent."""
+    try:
+        models = genai.list_models()
+        gemini_models = []
+        for model in models:
+            if 'gemini' in model.name.lower() and 'generateContent' in model.supported_generation_methods:
+                gemini_models.append(model.name)
+        return gemini_models
+    except:
+        return ["models/gemini-1.5-flash", "models/gemini-1.5-pro"]
 
 def generate_python_code(user_query, df_columns):
     prompt = f"""
-        You are a Python data analysis and visualization expert. Your task is to generate Python code that processes a Pandas DataFrame based on a user's natural language query. The generated function should:
+    You are a Python data analysis and visualization expert. Your task is to generate Python code that processes a Pandas DataFrame based on a user's natural language query. The generated function should:
 
 1. Be named `process_dataframe_query`.
 2. Accept two arguments:
@@ -86,26 +77,49 @@ def generate_python_code(user_query, df_columns):
 - For data transformations (e.g., filtering or sorting), return a new DataFrame.
 - If the query is unclear or unsupported, return an error message as a string.
 
+**Examples**:
+1. Query: "Show me the progress in a pie chart"
+   - Output: A pie chart visualizing the "Progress" column's percentage distribution.
+
+2. Query: "Filter tasks with progress less than 50% and show them"
+   - Output: A DataFrame filtered where "Progress" is less than 50%.
+
+3. Query: "What is the average progress across all projects?"
+   - Output: A number representing the average progress.
+
 **DataFrame Schema**:
-Columns: {', '.join(df_columns)}
+- Assume the DataFrame has the following columns: {', '.join(df_columns)}. These column names are case-sensitive.
 
 User Query: {user_query}
     """
-    model = genai.GenerativeModel("gemini-1.5-flash")
-    response = model.generate_content(prompt)
-    code = clean_code(response.text)
-    return code
-
+    
+    # Get actual available models
+    available_models = get_available_gemini_models()
+    
+    for model_name in available_models:
+        try:
+            model = genai.GenerativeModel(model_name)
+            response = model.generate_content(prompt)
+            code = response.text.strip()
+            return code
+        except Exception as e:
+            continue  # Try next model
+    
+    return f"Error: No working Gemini models found. Available models: {available_models}"
 
 def execute_code_query(df, user_query):
     code = generate_python_code(user_query, df.columns)
-
+    
+    # Check if code generation failed
+    if code.startswith("Error:"):
+        return code
+    
     file_path = "generated_code.py"
     try:
         with open(file_path, "w") as f:
             f.write(code)
+        delete_first_last_lines(file_path)
 
-        # load generated code dynamically
         spec = importlib.util.spec_from_file_location("generated_module", file_path)
         generated_module = importlib.util.module_from_spec(spec)
         try:
@@ -117,7 +131,7 @@ def execute_code_query(df, user_query):
 
         result = generated_module.process_dataframe_query(df, user_query)
 
-        os.remove(file_path)  # cleanup
+        os.remove(file_path)  # Clean up the generated code file
         return result
 
     except FileNotFoundError:
@@ -129,7 +143,6 @@ def execute_code_query(df, user_query):
     except Exception as e:
         return f"Error executing generated code: {e}"
 
-
 def save_to_excel(df):
     output = BytesIO()
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
@@ -137,10 +150,17 @@ def save_to_excel(df):
     output.seek(0)
     return output
 
-
-# Main Streamlit app
+# Main Streamlit application
 def main():
     st.set_page_config(page_title="Excel Query Chatbot with AI", layout="wide")
+    
+    # Configure API
+    api_key = os.getenv("GOOGLE_API_KEY")
+    if not api_key:
+        st.error("Please set the GOOGLE_API_KEY environment variable")
+        st.stop()
+    genai.configure(api_key=api_key)
+    
     st.title("Excel Query Chatbot with AI")
 
     uploaded_file = st.file_uploader("Upload your Excel file", type=["xlsx"])
@@ -162,8 +182,6 @@ def main():
                         file_name="filtered_data.xlsx",
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
-                elif isinstance(response2, plt.Figure):
-                    st.pyplot(response2)
 
         st.download_button(
             label="Download Updated Excel File",
@@ -174,6 +192,6 @@ def main():
     else:
         st.info("Please upload an Excel file to get started.")
 
-
 if __name__ == "__main__":
     main()
+
