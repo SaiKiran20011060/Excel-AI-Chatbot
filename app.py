@@ -17,7 +17,7 @@ except ImportError:
 
 
 # ✅ Configure API key (set in Streamlit Cloud secrets or environment)
-api_key = "AIzaSyBXFnz4UQOm-1RS8bBZLdrHv9_EVKfAfj4"
+api_key = "AIzaSyDZvEkdLN9XaEuO5KM-50gj_FJ6vjKPabQ"
 if not api_key:
     st.error("Please set the GOOGLE_API_KEY environment variable in Streamlit secrets or your system.")
     st.stop()
