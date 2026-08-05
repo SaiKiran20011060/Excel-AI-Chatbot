@@ -2,11 +2,11 @@ import streamlit as st
 import pandas as pd
 from io import BytesIO
 import os
-import google.generativeai as genai
 import importlib.util
 import subprocess
 import sys
 import re
+import requests
 import matplotlib.pyplot as plt
 
 # Ensure xlsxwriter is installed
@@ -32,7 +32,7 @@ def extract_python_code(raw_text):
         return match.group(1).strip()
     return raw_text.strip()
 
-def generate_python_code(user_query, df_columns):
+def generate_python_code(user_query, df_columns, api_key):
     prompt = f"""
 You are a Python data analysis and visualization expert. Generate a Python script that processes a Pandas DataFrame.
 
@@ -56,17 +56,37 @@ Return ONLY executable Python code inside a markdown code block (```python ... `
 
     for model_name in models_to_try:
         try:
-            model = genai.GenerativeModel(model_name)
-            response = model.generate_content(prompt)
-            if response.text:
-                return extract_python_code(response.text)
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent"
+            
+            # Manually forcing the correct auth header to bypass the SDK bug
+            headers = {
+                "Content-Type": "application/json",
+                "x-goog-api-key": api_key.strip()
+            }
+            
+            payload = {
+                "contents": [{"parts": [{"text": prompt}]}]
+            }
+            
+            response = requests.post(url, headers=headers, json=payload)
+            
+            if response.status_code == 200:
+                data = response.json()
+                try:
+                    response_text = data["candidates"][0]["content"]["parts"][0]["text"]
+                    return extract_python_code(response_text)
+                except (KeyError, IndexError) as e:
+                    errors.append(f"{model_name}: Failed to parse JSON - {e}")
+            else:
+                errors.append(f"{model_name}: HTTP {response.status_code} - {response.text}")
+                
         except Exception as e:
             errors.append(f"{model_name}: {str(e)}")
 
     return f"Error generating code across models:\n" + "\n".join(errors)
 
-def execute_code_query(df, user_query):
-    code = generate_python_code(user_query, df.columns)
+def execute_code_query(df, user_query, api_key):
+    code = generate_python_code(user_query, df.columns, api_key)
 
     if code.startswith("Error"):
         return code
@@ -103,13 +123,10 @@ def main():
     st.title("Excel Query Chatbot with AI")
 
     # ==========================================
-    # PASTE YOUR API KEY HERE
+    # PASTE YOUR NEW AQ. API KEY HERE
     # ==========================================
     api_key = "AQ.Ab8RN6LhJyTO-Wno56FJKy8s86Fi2aTFvD0dmIbP817l8vyLsA"  
     
-    # Configure the Gemini API
-    genai.configure(api_key=api_key)
-
     uploaded_file = st.file_uploader("Upload your Excel file", type=["xlsx"])
     if uploaded_file:
         df = load_excel(uploaded_file)
@@ -119,7 +136,7 @@ def main():
         user_query = st.text_input("Ask a question about the data")
         if user_query:
             with st.spinner("Processing your query..."):
-                response = execute_code_query(df, user_query)
+                response = execute_code_query(df, user_query, api_key)
 
                 if isinstance(response, pd.DataFrame):
                     st.write("Response (DataFrame):", response)
@@ -145,4 +162,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-        
+    
