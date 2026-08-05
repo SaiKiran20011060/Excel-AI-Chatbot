@@ -125,7 +125,7 @@ def main():
     # ==========================================
     # PASTE YOUR NEW AQ. API KEY HERE
     # ==========================================
-    api_key = "AQ.Ab8RN6LhJyTO-Wno56FJKy8s86Fi2aTFvD0dmIbP817l8vyLsA"  
+    api_key = "AIzaSyDh3ITY742S6s9mQHPP0YNKbJbiboVZmWo"  
     
     uploaded_file = st.file_uploader("Upload your Excel file", type=["xlsx"])
     if uploaded_file:
