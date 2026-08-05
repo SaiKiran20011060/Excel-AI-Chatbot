@@ -56,12 +56,11 @@ Return ONLY executable Python code inside a markdown code block (```python ... `
 
     for model_name in models_to_try:
         try:
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent"
+            # FIX: Appending the API key directly to the URL as a query parameter
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key.strip()}"
             
-            # Manually forcing the correct auth header to bypass the SDK bug
             headers = {
-                "Content-Type": "application/json",
-                "x-goog-api-key": api_key.strip()
+                "Content-Type": "application/json"
             }
             
             payload = {
