@@ -131,7 +131,7 @@ def main():
     # ==========================================
     # For local testing only. If deploying to Streamlit Community Cloud, 
     # replace this string with: st.secrets["GEMINI_API_KEY"]
-    api_key = "AIzaSyDh3ITY742S6s9mQHPP0YNKbJbiboVZmWo"  
+    api_key = "your_api_key"  
     
     if api_key == "YOUR_API_KEY_HERE":
         st.warning("⚠️ Please insert your valid AQ. API Key in the code before running.")
