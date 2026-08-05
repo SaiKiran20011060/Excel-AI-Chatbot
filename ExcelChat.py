@@ -155,7 +155,7 @@ def main():
     st.set_page_config(page_title="Excel Query Chatbot with AI", layout="wide")
     
     # Configure API
-    api_key = "AIzaSyDZvEkdLN9XaEuO5KM-50gj_FJ6vjKPabQ"
+    api_key = "AQ.Ab8RN6Ika6OutnMBDM8hDsnmm7FdBnSIu7ovjIt8C1pZmsUTOw"
     genai.configure(api_key=api_key)
     
     st.title("Excel Query Chatbot with AI")
