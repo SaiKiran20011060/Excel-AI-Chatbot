@@ -105,7 +105,7 @@ def main():
     # ==========================================
     # PASTE YOUR API KEY HERE
     # ==========================================
-    api_key = "AIzaSyC-zU0YyKZ3efiYymXqCupS_Skpor-ZvNA"  
+    api_key = "AQ.Ab8RN6LhJyTO-Wno56FJKy8s86Fi2aTFvD0dmIbP817l8vyLsA"  
     
     # Configure the Gemini API
     genai.configure(api_key=api_key)
